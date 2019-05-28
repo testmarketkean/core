@@ -201,7 +201,33 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-yarn global add @arkecosystem/core
+shopt -s expand_aliases
+alias ark="$HOME/core-bridgechain/packages/core/bin/run"
+echo 'alias marketplace-chain="$HOME/core-bridgechain/packages/core/bin/run"' >> ~/.bashrc
+rm -rf "$HOME/core-bridgechain"
+git clone "https://github.com/testmarketkean/core" -b chore/bridgechain-changes "$HOME/core-bridgechain" || FAILED="Y"
+
+if [ "$FAILED" == "Y" ]; then
+    FAILED="N"
+    git clone "https://github.com/testmarketkean/core" "$HOME/core-bridgechain" || FAILED="Y"
+
+    if [ "$FAILED" == "Y" ]; then
+        echo "Failed to fetch core repo with origin 'https://github.com/testmarketkean/core'"
+
+        exit 1
+    fi
+fi
+
+cd "$HOME/core-bridgechain"
+YARN_SETUP="N"
+while [ "$YARN_SETUP" == "N" ]; do
+  YARN_SETUP="Y"
+  yarn setup || YARN_SETUP="N"
+done
+rm -rf "$HOME/.config/@marketplace-chain"
+rm -rf "$HOME/.config/@marketplace-chain"
+rm -rf "$HOME/.config/marketplace-chain-core"
+
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
 ark config:publish
